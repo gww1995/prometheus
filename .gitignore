@@ -3,8 +3,7 @@
 /*.yaml
 /*.yml
 *.exe
-*_test.go
-# Ignore test file
+
 
 /prometheus
 /promtool
@@ -33,3 +32,13 @@ npm_licenses.tar.bz2
 
 # Ignore parser debug
 y.output
+
+/.idea/.gitignore
+/.idea/golinter.xml
+/.idea/MarsCodeWorkspaceAppSettings.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/prometheus.iml
+/.idea/vcs.xml
+# Ignore test file
+*_test.go
