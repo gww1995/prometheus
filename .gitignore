@@ -3,6 +3,8 @@
 /*.yaml
 /*.yml
 *.exe
+*_test.go
+# Ignore test file
 
 /prometheus
 /promtool
