@@ -731,7 +731,7 @@ func main() {
 		logger.Error("failed to register service discovery metrics", "err", err)
 		os.Exit(1)
 	}
-
+	//创建discovery manager
 	discoveryManagerScrape = discovery.NewManager(ctxScrape, logger.With("component", "discovery manager scrape"), prometheus.DefaultRegisterer, sdMetrics, discovery.Name("scrape"))
 	if discoveryManagerScrape == nil {
 		logger.Error("failed to create a discovery manager scrape")
@@ -873,7 +873,7 @@ func main() {
 
 	// This is passed to ruleManager.Update().
 	externalURL := cfg.web.ExternalURL.String()
-
+	//初始化reloader
 	reloaders := []reloader{
 		{
 			name:     "db_storage",
@@ -920,6 +920,7 @@ func main() {
 				for _, v := range scfgs {
 					c[v.JobName] = v.ServiceDiscoveryConfigs
 				}
+				//scrape_sd组件加载配置
 				return discoveryManagerScrape.ApplyConfig(c)
 			},
 		}, {
@@ -1029,7 +1030,7 @@ func main() {
 		)
 	}
 	{
-		// Scrape discovery manager.
+		//scrape组件入口 Scrape discovery manager.
 		g.Add(
 			func() error {
 				err := discoveryManagerScrape.Run()
@@ -1078,7 +1079,7 @@ func main() {
 				// It depends on the config being in sync with the discovery manager so
 				// we wait until the config is fully loaded.
 				<-reloadReady.C
-
+				//scrape 组件入口
 				err := scrapeManager.Run(discoveryManagerScrape.SyncCh())
 				logger.Info("Scrape manager stopped")
 				return err
@@ -1190,7 +1191,7 @@ func main() {
 		)
 	}
 	{
-		// Initial configuration loading.
+		// 配置文件初始化入口.
 		cancel := make(chan struct{})
 		g.Add(
 			func() error {
@@ -1201,7 +1202,7 @@ func main() {
 					reloadReady.Close()
 					return nil
 				}
-
+				//配置文件加载入口
 				if err := reloadConfig(cfg.configFile, cfg.tsdb.EnableExemplarStorage, logger, noStepSubqueryInterval, func(bool) {}, reloaders...); err != nil {
 					return fmt.Errorf("error loading config from %q: %w", cfg.configFile, err)
 				}
@@ -1431,6 +1432,7 @@ type reloader struct {
 	reloader func(*config.Config) error
 }
 
+// 配置文件加载
 func reloadConfig(filename string, enableExemplarStorage bool, logger *slog.Logger, noStepSuqueryInterval *safePromQLNoStepSubqueryInterval, callback func(bool), rls ...reloader) (err error) {
 	start := time.Now()
 	timingsLogger := logger
@@ -1461,6 +1463,7 @@ func reloadConfig(filename string, enableExemplarStorage bool, logger *slog.Logg
 	failed := false
 	for _, rl := range rls {
 		rstart := time.Now()
+		//通过reloader将配置文件加载到对应的模块
 		if err := rl.reloader(conf); err != nil {
 			logger.Error("Failed to apply configuration", "err", err)
 			failed = true

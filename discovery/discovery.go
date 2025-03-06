@@ -36,6 +36,7 @@ type Discoverer interface {
 	// Run hands a channel to the discovery provider (Consul, DNS, etc.) through which
 	// it can send updated target groups. It must return when the context is canceled.
 	// It should not close the update channel on returning.
+	//服务发现运行接口
 	Run(ctx context.Context, up chan<- []*targetgroup.Group)
 }
 
@@ -154,6 +155,7 @@ func (c StaticConfig) NewDiscovererMetrics(prometheus.Registerer, RefreshMetrics
 
 type staticDiscoverer []*targetgroup.Group
 
+// 静态服务发现具体实现方法，通过up推送到--
 func (c staticDiscoverer) Run(ctx context.Context, up chan<- []*targetgroup.Group) {
 	// TODO: existing implementation closes up chan, but documentation explicitly forbids it...?
 	defer close(up)

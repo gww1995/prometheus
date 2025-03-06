@@ -138,7 +138,8 @@ func HTTPClientOptions(opts ...config.HTTPClientOption) func(*Manager) {
 	}
 }
 
-// Manager maintains a set of discovery providers and sends each update to a map channel.
+// Manager
+// tains a set of discovery providers and sends each update to a map channel.
 // Targets are grouped by the target set name.
 type Manager struct {
 	logger   *slog.Logger
@@ -186,7 +187,7 @@ func (m *Manager) UnregisterMetrics() {
 	m.metrics.Unregister(m.registerer)
 }
 
-// Run starts the background processing.
+// 服务发现run方法 Run starts the background processing.
 func (m *Manager) Run() error {
 	go m.sender()
 	<-m.ctx.Done()
@@ -201,6 +202,7 @@ func (m *Manager) SyncCh() <-chan map[string][]*targetgroup.Group {
 
 // ApplyConfig checks if discovery provider with supplied config is already running and keeps them as is.
 // Remaining providers are then stopped and new required providers are started using the provided config.
+// 服务发现加载配置
 func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
