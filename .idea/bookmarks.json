@@ -1,0 +1,70 @@
+{
+  "prometheus": [
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 372,
+      "name": "//定时监听 m.triggerSend 通道，有信号的时候，将 targets 数据封装发送到 syncCh 通道，ScrapManager 通过",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 331,
+      "name": "//updater 协程，通过 updates 通道与 Run 协程同步服务发现目标信息",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/cmd/prometheus/main.go",
+      "linenumber": 1034,
+      "name": "//scrape组件入口 Scrape discovery manager.",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/discovery.go",
+      "linenumber": 38,
+      "name": "//服务发现携程",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 279,
+      "name": "//通过触发 m.triggerSend 通道通知服务发现对目标进行更新。",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 267,
+      "name": "//开启 provider",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 229,
+      "name": "//",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/discovery/manager.go",
+      "linenumber": 213,
+      "name": "//注册provider",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/cmd/promtool/sd.go",
+      "linenumber": 99,
+      "name": "}",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/cmd/prometheus/main.go",
+      "linenumber": 922,
+      "name": "//scrape_sd组件加载配置",
+      "bookmarkType": "DEFAULT"
+    },
+    {
+      "fileDescriptor": "$/cmd/prometheus/main.go",
+      "linenumber": 739,
+      "name": "",
+      "bookmarkType": "DEFAULT"
+    }
+  ]
+}

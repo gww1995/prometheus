@@ -36,7 +36,7 @@ type Discoverer interface {
 	// Run hands a channel to the discovery provider (Consul, DNS, etc.) through which
 	// it can send updated target groups. It must return when the context is canceled.
 	// It should not close the update channel on returning.
-	//服务发现运行接口
+	//服务发现携程
 	Run(ctx context.Context, up chan<- []*targetgroup.Group)
 }
 

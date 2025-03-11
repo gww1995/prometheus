@@ -737,7 +737,7 @@ func main() {
 		logger.Error("failed to create a discovery manager scrape")
 		os.Exit(1)
 	}
-
+	//discovery manager 初始化入口
 	discoveryManagerNotify = discovery.NewManager(ctxNotify, logger.With("component", "discovery manager notify"), prometheus.DefaultRegisterer, sdMetrics, discovery.Name("notify"))
 	if discoveryManagerNotify == nil {
 		logger.Error("failed to create a discovery manager notify")
@@ -1030,9 +1030,9 @@ func main() {
 		)
 	}
 	{
-		//scrape组件入口 Scrape discovery manager.
 		g.Add(
 			func() error {
+				//scrape组件入口 Scrape discovery manager.
 				err := discoveryManagerScrape.Run()
 				logger.Info("Scrape discovery manager stopped")
 				return err

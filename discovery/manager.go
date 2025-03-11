@@ -43,10 +43,12 @@ type Provider struct {
 	// done should be called after cleaning up resources associated with cancelled provider.
 	done func()
 
-	mu   sync.RWMutex
+	mu sync.RWMutex
+	//旧配置文件
 	subs map[string]struct{}
 
 	// newSubs is used to temporary store subs to be used upon config reload completion.
+	//新配置文件
 	newSubs map[string]struct{}
 }
 
@@ -202,13 +204,14 @@ func (m *Manager) SyncCh() <-chan map[string][]*targetgroup.Group {
 
 // ApplyConfig checks if discovery provider with supplied config is already running and keeps them as is.
 // Remaining providers are then stopped and new required providers are started using the provided config.
-// 服务发现加载配置
+// 服务发现管理加载配置
 func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	var failedCount int
 	for name, scfg := range cfg {
+		//注册provider
 		failedCount += m.registerProviders(scfg, name)
 	}
 	m.metrics.FailedConfigs.Set(float64(failedCount))
@@ -224,6 +227,7 @@ func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 			prov.done = func() {
 				wg.Done()
 			}
+			//如果此provider没有新的配置文件，那么就取消掉
 			prov.cancel()
 			continue
 		}
@@ -236,12 +240,14 @@ func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 		for s := range prov.subs {
 			refTargets = m.targets[poolKey{s, prov.name}]
 			// Remove obsolete subs' targets.
+			//去除在newSubs中文件中不存在的服务发现与对应的指标
 			if _, ok := prov.newSubs[s]; !ok {
 				delete(m.targets, poolKey{s, prov.name})
 				m.metrics.DiscoveredTargets.DeleteLabelValues(m.name, s)
 			}
 		}
 		// Set metrics and targets for new subs.
+		//添加newSubs中的服务发现与对应的指标
 		for s := range prov.newSubs {
 			if _, ok := prov.subs[s]; !ok {
 				m.metrics.DiscoveredTargets.WithLabelValues(s).Set(0)
@@ -259,6 +265,7 @@ func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 		prov.newSubs = map[string]struct{}{}
 		prov.mu.Unlock()
 		if !prov.IsStarted() {
+			//开启 provider
 			m.startProvider(m.ctx, prov)
 		}
 	}
@@ -270,6 +277,7 @@ func (m *Manager) ApplyConfig(cfg map[string]Configs) error {
 	// See https://github.com/prometheus/prometheus/pull/13147 for details.
 	if len(m.providers) > 0 {
 		select {
+		//通过非阻塞的方式触发 m.triggerSend 通道通知服务发现对目标进行更新。
 		case m.triggerSend <- struct{}{}:
 		default:
 		}
@@ -295,6 +303,7 @@ func (m *Manager) StartCustomProvider(ctx context.Context, name string, worker D
 	m.startProvider(ctx, p)
 }
 
+// 启动 Run 与 Updater 协程
 func (m *Manager) startProvider(ctx context.Context, p *Provider) {
 	m.logger.Debug("Starting provider", "provider", p.name, "subs", fmt.Sprintf("%v", p.subs))
 	ctx, cancel := context.WithCancel(ctx)
@@ -320,6 +329,7 @@ func (m *Manager) cleaner(p *Provider) {
 	}
 }
 
+// updater 协程，通过 updates 通道与 Run 协程同步服务发现目标信息
 func (m *Manager) updater(ctx context.Context, p *Provider, updates chan []*targetgroup.Group) {
 	// Ensure targets from this provider are cleaned up.
 	defer m.cleaner(p)
@@ -360,6 +370,8 @@ func (m *Manager) sender() {
 			return
 		case <-ticker.C: // Some discoverers send updates too often, so we throttle these with the ticker.
 			select {
+			//定时监听 m.triggerSend 通道，有信号的时候，将 targets 数据封装发送到 syncCh 通道，ScrapManager 通过
+			//监听此通道来进行指标抓取等任务
 			case <-m.triggerSend:
 				m.metrics.SentUpdates.Inc()
 				select {
